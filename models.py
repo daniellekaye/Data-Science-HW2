@@ -7,6 +7,7 @@ from sklearn.model_selection import cross_val_score
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import ConfusionMatrixDisplay, confusion_matrix
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
 import seaborn as sns
 import matplotlib.pyplot as plt
 
@@ -45,7 +46,13 @@ treemodel = DecisionTreeClassifier(max_features=maxFeatures, random_state=modelR
 treemodel.fit(X_train, y_train)
 treemodel_predictions = treemodel.predict(X_test)
 tree_cm = confusion_matrix(y_test, treemodel_predictions)
-#Model 3
+
+#Model 3: Random Forest
+maxfeatures = "log2"
+rfmodel = RandomForestClassifier(max_features=maxfeatures)
+rfmodel.fit(X_train, y_train)
+rfmodel_predictions = rfmodel.predict(X_test)
+rf_cm = confusion_matrix(y_test, rfmodel_predictions)
 
 #Phase 3: Evaluation and visualization
 print("Logistic Regression")
@@ -73,4 +80,18 @@ print("CV Standard Deviation: " + str(tree_cv_scores.std()))
 tree_cm_disp = ConfusionMatrixDisplay(confusion_matrix=tree_cm, display_labels=data.target_names)
 tree_cm_disp.plot()
 tree_cm_disp.ax_.set_title("Classification Tree Confusion Matrix")
-plt.show()
+#plt.show()
+
+print("\n")
+print("Random Forest")
+rf_accuracy = rfmodel.score(X_test, y_test)
+rf_train_accuracy = rfmodel.score(X_train, y_train)
+print("Test minus Training Accuracy: " + str(rf_accuracy - rf_train_accuracy))
+
+rf_cv_scores = cross_val_score(rfmodel, X_train, y_train, scoring='accuracy', cv=5)
+print("Mean CV Score: " + str(rf_cv_scores.mean()))
+print("CV Standard Deviation: " + str(rf_cv_scores.std()))
+rf_cm_disp = ConfusionMatrixDisplay(confusion_matrix=rf_cm, display_labels=data.target_names)
+rf_cm_disp.plot()
+rf_cm_disp.ax_.set_title("Random Forest Confusion Matrix")
+#plt.show()
